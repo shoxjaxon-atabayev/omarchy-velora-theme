@@ -1,0 +1,152 @@
+# Hand-written shell.toml for Omarchy Velora.
+#
+# This is a literal rendering of default/themed/shell.toml.tpl against this
+# theme's colors.toml, with explicit overrides only where the resolved
+# value differs from the template default. Sections/keys with no explicit
+# design intent (controls, spacing, font, polkit, image-picker, and most of
+# launcher/menu/tooltip) are left at the template's own default values --
+# nothing invented, nothing approximated beyond what was explicitly resolved.
+#
+# NOTE: a hand-written shell.toml is copied verbatim by
+# omarchy-theme-set-templates (no {{ }} substitution runs on non-.tpl
+# files), so every value below is a literal, not a placeholder. This also
+# means this file freezes controls/spacing/font/polkit/image-picker at
+# today's template defaults -- shipping shell.<section>.toml overrides
+# instead would let those sections keep tracking future Quattro template
+# updates. Flagging this trade-off; not changing the approach without
+# confirmation since a single shell.toml was explicitly requested.
+
+[bar]
+background       = "#1a1b1e"
+background-alpha = 0.4
+text             = "#eaeaef"
+active           = "#ef5d67"
+scale-with-font  = true
+size-horizontal  = 26
+size-vertical    = 28
+
+[hyprland]
+active-border            = "rgba(ffffff66) rgba(ffffff22) 90deg"
+active-border-foreground = "rgba(ffffff66) rgba(ffffff22) 90deg"
+
+[controls]
+normal-color        = "#eaeaef"
+normal-fill-alpha   = 0.04
+normal-border       = "#eaeaef"
+normal-border-width = 1
+normal-border-alpha = 0.4
+
+hover-cursor-color        = "#eaeaef"
+hover-cursor-fill-alpha   = 0.08
+hover-cursor-border       = "#eaeaef"
+hover-cursor-border-width = 1
+hover-cursor-border-alpha = 0.25
+
+focus-color        = "#eaeaef"
+focus-fill-alpha   = 0.08
+focus-border       = "#eaeaef"
+focus-border-width = 1
+focus-border-alpha = 0.25
+
+selected-color        = "#eaeaef"
+selected-fill-alpha   = 0.18
+selected-border       = "#eaeaef"
+selected-border-width = 0
+selected-border-alpha = 1.0
+
+pressed-fill-alpha   = 0.22
+selection-fill-alpha = 0.35
+
+[spacing]
+scale = 1.0
+scale-with-font = true
+
+[font]
+base-size = 12
+
+[popups]
+background       = "#1a1b1e"
+background-alpha = 0.5
+text             = "#eaeaef"
+border           = "hyprland.active-border"
+border-alpha     = 1.0
+
+[tooltip]
+background       = "#1a1b1e"
+background-alpha = 0.97
+text             = "#eaeaef"
+border           = "hyprland.active-border-foreground"
+border-alpha     = 1.0
+
+[notifications]
+background       = "#1a1b1e"
+background-alpha = 0.25
+text             = "#eaeaef"
+border           = "#ffffff"
+border-alpha     = 0.33
+countdown        = "#ffffff"
+# countdown has no countdown-alpha key in the Quattro schema, so mako.ini's
+# progress-color alpha (~0.33) is an unavoidable Quattro limitation: the
+# hue is preserved exactly, the translucency cannot be.
+
+[launcher]
+background                = "#1a1b1e"
+background-alpha          = 0.95
+text                      = "#eaeaef"
+border                    = "hyprland.active-border-foreground"
+border-alpha              = 1.0
+scrim                     = "#1a1b1e"
+scrim-alpha               = 0.5
+selected-background       = "#eaeaef"
+selected-background-alpha = 0.08
+selected-text             = "#7ca5ff"
+selected-border           = "hyprland.active-border-foreground"
+selected-border-alpha     = 0.25
+
+[menu]
+background                = "#1a1b1e"
+background-alpha          = 1.0
+text                      = "#eaeaef"
+border                    = "hyprland.active-border-foreground"
+border-alpha              = 1.0
+scrim                     = "#1a1b1e"
+scrim-alpha               = 0.5
+selected-background       = "#eaeaef"
+selected-background-alpha = 0.08
+selected-text             = "#7ca5ff"
+selected-border           = "hyprland.active-border-foreground"
+selected-border-alpha     = 0.25
+
+[polkit]
+background       = "#1a1b1e"
+background-alpha = 1.0
+text             = "#eaeaef"
+text-error       = "#ef5d67"
+border           = "hyprland.active-border"
+border-error     = "#ef5d67"
+border-alpha     = 1.0
+scrim            = "#1a1b1e"
+scrim-alpha      = 0.5
+accent           = "#7ca5ff"
+
+[lock]
+background       = "#1a1b1e"
+background-alpha = 0.4
+text             = "#eaeaef"
+placeholder      = "#a3a4a8"
+text-error       = "#ef5d67"
+border           = "#3a3a3a"
+border-active    = "#3a3a3a"
+border-error     = "#3a3a3a"
+border-alpha     = 1.0
+selection        = "#7ca5ff"
+selection-alpha  = 0.45
+
+[image-picker]
+scrim                   = "#1a1b1e"
+scrim-alpha             = 0.5
+text                    = "#eaeaef"
+selected-border         = "#7ca5ff"
+selected-border-alpha   = 1.0
+unselected-border       = "#eaeaef"
+unselected-border-alpha = 0.28

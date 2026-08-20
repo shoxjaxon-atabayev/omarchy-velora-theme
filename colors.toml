@@ -1,0 +1,38 @@
+mode = "dark"
+
+accent = "#7ca5ff"
+selection = "#b2c3ff"
+muted = "#505258"
+
+background = "#1a1b1e"
+foreground = "#eaeaef"
+
+# ANSI 16-color palette, taken verbatim from this theme's alacritty.toml
+# palette. color0/color7 are forced to background/foreground by Omarchy's
+# resolver whenever both are set (bin/omarchy-theme-color), so the
+# original ANSI black (#2b2d31) and white (#f8f8fa) cannot remain distinct
+# from background/foreground under Quattro -- unavoidable, not a choice.
+color0  = "#1a1b1e"
+color1  = "#ef5d67"
+color2  = "#8edb73"
+color3  = "#f7c553"
+color4  = "#7ca5ff"
+color5  = "#e29ef3"
+color6  = "#7dd8d3"
+color7  = "#eaeaef"
+color8  = "#505258"
+color9  = "#ff7680"
+color10 = "#a2ee8b"
+color11 = "#ffd86f"
+color12 = "#97b6ff"
+color13 = "#efb5f9"
+color14 = "#94e8e3"
+color15 = "#ffffff"
+
+# orange has one explicit source: waybar.css's accent_orange
+# (battery-warning indicator). No other file in this theme defines it.
+orange = "#ffa502"
+
+# Resolved from hyprland.conf's $active_border / $inactive_border.
+hyprland_active_border   = "rgba(ffffff66) rgba(ffffff22) 90deg"
+hyprland_inactive_border = "rgba(3a3a3a60)"
