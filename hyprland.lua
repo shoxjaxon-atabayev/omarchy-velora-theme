@@ -22,11 +22,12 @@ local group_border_inactive = "rgba(3a3a3a55)"
 local group_locked_active = { colors = { "rgba(ff990088)", "rgba(ff990022)" }, angle = 90 }
 local group_locked_inactive = "rgba(3a3a3a77)"
 
--- ── Opaque frosted glass ────────────────────────────────────────────────────
--- The whole point of the theme: dark tinted glass, not transparency. A strong
--- multi-pass blur supplies the frost, the tint comes from windows and shell
--- surfaces staying at high opacity, and contrast/brightness pulled slightly
--- below 1.0 keeps the backdrop from washing the foreground text out.
+-- ── Premium frosted glass ───────────────────────────────────────────────────
+-- Dark tinted glass with clearly visible, diffused backdrop detail — not flat
+-- transparency, not a muddy opaque panel. `contrast` above 1.0 and neutral
+-- `brightness` (see decoration.blur below) are what actually deliver that;
+-- window/shell opacity only controls how much of the blurred backdrop blends
+-- through the tint.
 --
 -- Terminals deliberately keep their own background fully opaque (see
 -- alacritty.toml / kitty.conf / ghostty.conf) so that window translucency has
@@ -35,6 +36,11 @@ local group_locked_inactive = "rgba(3a3a3a77)"
 -- look this theme is trying to avoid.
 local glass_active_opacity = 0.92
 local glass_inactive_opacity = 0.88
+
+-- Terminals are large flat-color panels — they need to sit thinner than
+-- regular windows or there's not enough blur blend to perceive at all.
+local terminal_active_opacity = 0.80
+local terminal_inactive_opacity = 0.76
 
 -- Layer surfaces below this alpha are left unblurred, so the fully
 -- transparent padding around bar modules, notification cards and panels does
@@ -71,10 +77,14 @@ hl.config({
   },
 
   decoration = {
-    -- Velora is a hard-edged theme. The shell reads decoration:rounding back
-    -- out of hyprctl for its own corner radius, so this keeps Quickshell
-    -- surfaces square too.
-    rounding = 0,
+    -- The shell reads decoration:rounding straight out of hyprctl for its
+    -- own corner radius, so this rounds every Quickshell glass surface
+    -- (menu, bar, panels, notifications, ...) to match windows automatically
+    -- — there's no per-surface radius to set separately. rounding_power > 2
+    -- gives a smoother superellipse curve than Hyprland's default circular
+    -- corner, closer to how native Quattro themes round their surfaces.
+    rounding = 10,
+    rounding_power = 3,
 
     -- Fallback for windows Omarchy's own rules do not tag; the tag rules
     -- further down are what actually drive most windows.
@@ -97,9 +107,18 @@ hl.config({
       size = 20,
       passes = 3,
       noise = 0.0117,
-      contrast = 0.9,
-      brightness = 0.9,
-      vibrancy = 0.17,
+      -- contrast > 1.0 gives blurred detail real separation instead of
+      -- flattening it toward mid-gray (Hyprland runs an S-curve gain here,
+      -- not CSS-style linear contrast — 1.15 is a mild, deliberate push, not
+      -- a guess). brightness = 1.0 is the only truly neutral value: Hyprland
+      -- applies it twice, asymmetrically (brightens pre-blur only if > 1.0,
+      -- darkens post-blur only if < 1.0), so the old 0.9 was silently
+      -- darkening every blurred pixel and is the direct cause of blur
+      -- reading muddy over dark backdrops. vibrancy is a perceptually-aware
+      -- HSL saturation boost divided by `passes`; 0.20 stays subtle.
+      contrast = 1.15,
+      brightness = 1.0,
+      vibrancy = 0.20,
 
       -- Frost application context menus and dropdowns as well, so an open
       -- menu inside a window matches the window it belongs to.
@@ -122,18 +141,20 @@ o.window({ tag = "default-opacity" }, { opacity = glass_active_opacity .. " " ..
 o.window({ tag = "chromium-based-browser" }, { opacity = glass_active_opacity .. " " .. glass_inactive_opacity })
 o.window({ tag = "firefox-based-browser" }, { opacity = glass_active_opacity .. " " .. glass_inactive_opacity })
 
--- Alacritty needs a lower opacity to expose the Velora frosted glass.
+-- Terminals: a single explicit "thin" tier, not Omarchy's shared `terminal`
+-- tag. Alacritty, kitty and Ghostty all ship Velora-authored configs pinned
+-- opaque (see alacritty.toml/kitty.conf/ghostty.conf), so they need the same
+-- lower opacity to expose blur through their otherwise flat backgrounds; the
+-- About window is a TUI running inside Alacritty and gets the same
+-- treatment. Deliberately NOT using Omarchy's `terminal` tag: that also
+-- matches foot, wezterm, and every dense org.omarchy.*/TUI.* app (btop,
+-- lazygit, ...) — Velora doesn't theme foot/wezterm (their own opacity is
+-- unknown and untouchable, risking a silent double-transparency stack), and
+-- dense TUIs weren't asked for and are a real legibility risk at this
+-- opacity without a dedicated check.
 o.window(
-  { class = "Alacritty" },
-  { opacity = "0.80 0.76" }
-)
-
--- About is a TUI Alacritty window.
--- Its opaque terminal background needs lower opacity to reveal
--- the same frosted-glass backdrop as regular Velora windows.
-o.window(
-  "org.omarchy.about",
-  { opacity = "0.80 0.76" }
+  "(Alacritty|kitty|com\\.mitchellh\\.ghostty|org\\.omarchy\\.about)",
+  { opacity = terminal_active_opacity .. " " .. terminal_inactive_opacity }
 )
 
 -- ── Shell surface glass ─────────────────────────────────────────────────────
@@ -164,25 +185,25 @@ hl.layer_rule({
 -- Menu.qml's Color.menu tokens) plus polkit and the image selector each draw
 -- a single wlr-layer-shell surface that contains TWO regions of very
 -- different alpha: a fullscreen scrim (shell.toml scrim-alpha, 0.25) behind
--- a smaller card (background-alpha, 0.45 for menu/clipboard/emojis, 0.55 for
+-- a smaller card (background-alpha, 0.43 for menu/clipboard/emojis, 0.55 for
 -- polkit; the image selector has no card, only its scrim). One layer_rule
 -- can't blur one region of a surface and not another directly, but
 -- ignore_alpha *is* a per-pixel alpha gate — so setting it between those two
 -- values makes the scrim (0.25, below the gate) fall through unblurred as a
--- light dim wash, while the card (0.45+, above the gate) keeps the frosted
+-- light dim wash, while the card (0.43+, above the gate) keeps the frosted
 -- blur.
 --
 -- The card alpha and this gate must move together: drop card alpha below
 -- the gate and blur silently turns off for the card too (it just shows the
 -- raw, unblurred backdrop at low opacity — easy to mistake for "blur is
--- broken" rather than "blur is skipped here"). Card alpha was pushed down
--- from an earlier 0.60 to 0.45 because 0.60 still read as flat over a
--- low-contrast backdrop (a dark editor, a dark web page) — blurring
--- already-dark content produces more dark, so the blend needs to be bigger
--- to read as frosted rather than merely tinted. Keep some margin either
--- side of the gate (it sits 0.10 above the scrim and 0.10 below the
--- lowest card here) since the two are exact literals, not computed.
-local scrim_card_ignore_alpha = 0.35
+-- broken" rather than "blur is skipped here"). Keep real margin on both
+-- sides of the gate, not just enough to clear it on paper: card edges
+-- (the gradient border, corner/shadow blending) produce a band of soft
+-- intermediate-alpha pixels, not a hard step, so a tight margin risks part
+-- of that edge falling below the gate — a visible unblurred seam right
+-- where the border is supposed to read as a clean glass edge. 0.33 keeps
+-- ~0.08 above the scrim and ~0.10 below the lowest card.
+local scrim_card_ignore_alpha = 0.33
 
 hl.layer_rule({
   name = "velora-glass-scrim-cards",

@@ -13,28 +13,28 @@
 # future Quattro template updates. Flagging the trade-off; keeping the single
 # hand-written file as requested.
 #
-# ── The alpha scale ───────────────────────────────────────────────────────────
-# Every surface below is blurred by Hyprland (see hyprland.lua's layer rules),
-# so these alphas are the *tint*, not the transparency budget. An alpha above
-# ~0.8 blends in so little of the blurred backdrop that the surface reads as
-# flat and opaque rather than glass -- measured live on this system: a card at
-# 0.90 barely shifted color against a colorful backdrop, while the same card
-# at 0.60 showed an obvious soft gradient through it while staying easily
-# readable. These values are picked from that test, not the template's own
-# high-opacity defaults.
+# ── The material scale ─────────────────────────────────────────────────────
+# Every surface below is blurred by Hyprland (see hyprland.lua's layer rules
+# and its blur.contrast/brightness/vibrancy, which is what actually makes the
+# blurred backdrop read as glass instead of a flat tint). These alphas are
+# the tint weight, not a transparency budget -- three deliberate tiers, not
+# one flat value everywhere:
 #
-#   0.55  persistent chrome     bar
-#   0.55  transient overlays    popups (bar flyouts, network/keyboard panels, OSD)
-#   0.60  content cards         menu, launcher
-#   0.65  transient cards       notifications, lock input card
-#   0.68  must-read surfaces    polkit prompt
-#   0.85  dense small text      tooltips
-#   0.50  scrims                the dim wash behind a card (blurred, not tinted)
+#   thin     0.43  content cards      menu, launcher, clipboard, emojis
+#   regular  0.52  persistent chrome  bar, popups (flyouts/panels/OSD/etc)
+#   regular  0.55  must-read surface  polkit prompt (legibility over frost)
+#   regular  0.62  transient cards    notifications
+#   thick    0.85  dense small text   tooltip
+#   --       0.25  scrims             the dim wash behind a card (never blurred, see hyprland.lua)
+#   --       0.65  lock input card    excluded from this tier system -- see [lock] below
+#
+# Card alpha must stay above hyprland.lua's scrim_card_ignore_alpha (0.33)
+# with margin, or blur silently turns off for that card too.
 
 [bar]
 # Alpha companions (where present) range from 0 (invisible) to 1 (opaque).
 background       = "#1a1b1e"
-background-alpha = 0.55
+background-alpha = 0.52
 text             = "#eaeaef"
 active           = "#ef5d67"
 scale-with-font  = true
@@ -85,7 +85,7 @@ base-size = 12
 # Color.popups directly). Blurred through omarchy-bar's blur_popups layer
 # rule and, for the panels, their own omarchy-keyboard-panel layer rule.
 background       = "#1a1b1e"
-background-alpha = 0.55
+background-alpha = 0.52
 text             = "#eaeaef"
 border           = "hyprland.active-border"
 border-alpha     = 1.0
@@ -100,7 +100,7 @@ border-alpha     = 1.0
 
 [notifications]
 background       = "#1a1b1e"
-background-alpha = 0.65
+background-alpha = 0.62
 text             = "#eaeaef"
 border           = "#ffffff"
 border-alpha     = 0.33
@@ -114,7 +114,7 @@ countdown        = "#ffffff"
 # the identical Menu.qml scrim+card structure (currently unused by any live
 # surface, kept in sync for when it is).
 background                = "#1a1b1e"
-background-alpha          = 0.45
+background-alpha          = 0.43
 text                      = "#eaeaef"
 border                    = "hyprland.active-border-foreground"
 border-alpha              = 1.0
@@ -129,16 +129,15 @@ selected-border-alpha     = 0.25
 [menu]
 # The menu (and clipboard/emojis, which share these tokens) render as ONE
 # layer surface with two regions: a fullscreen `scrim` and a smaller `card`
-# on top. hyprland.lua gates blur on this surface with ignore_alpha = 0.35,
-# so the scrim (0.25, below the gate) falls through unblurred as a light dim
-# wash, while the card (0.45, above the gate) keeps the frosted blur. Both
-# numbers were tuned live: 0.60 on the card still read as flat over a
-# low-contrast backdrop (a dark editor/dark web page) because so little
-# blurred backdrop was blending in; 0.45 makes the frosting visible even
-# there. Keep background-alpha and scrim-alpha on opposite sides of
-# hyprland.lua's scrim_card_ignore_alpha if you touch either.
+# on top. hyprland.lua gates blur on this surface with
+# scrim_card_ignore_alpha = 0.33, so the scrim (0.25, below the gate) falls
+# through unblurred as a light dim wash -- visually distinct, no material --
+# while the card (0.43, above the gate) keeps the frosted blur and reads as
+# unmistakably separate glass on top of it. Keep background-alpha and
+# scrim-alpha on opposite sides of that gate, with margin, if you touch
+# either -- see hyprland.lua's comment on why the margin matters.
 background                = "#1a1b1e"
-background-alpha          = 0.45
+background-alpha          = 0.43
 text                      = "#eaeaef"
 border                    = "hyprland.active-border-foreground"
 border-alpha              = 1.0
@@ -166,8 +165,13 @@ accent           = "#7ca5ff"
 
 [lock]
 # The lock screen is an ext-session-lock surface, not a layer surface, so no
-# Hyprland layer rule reaches it -- but Quickshell already gaussian-blurs the
-# wallpaper behind this card in QML, so the same glass reads correctly here.
+# Hyprland layer rule reaches it -- Quickshell blurs its own wallpaper via a
+# QML MultiEffect with a fixed radius/saturation this repo has no file for
+# and can't touch. None of the blur.contrast/brightness/vibrancy retuning
+# above reaches this surface at all, so its alpha is deliberately left
+# unchanged rather than folded into the tier system -- moving just this one
+# number would claim a material consistency the theme structurally can't
+# deliver here.
 background       = "#1a1b1e"
 background-alpha = 0.65
 text             = "#eaeaef"
