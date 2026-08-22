@@ -122,6 +122,14 @@ o.window({ tag = "default-opacity" }, { opacity = glass_active_opacity .. " " ..
 o.window({ tag = "chromium-based-browser" }, { opacity = glass_active_opacity .. " " .. glass_inactive_opacity })
 o.window({ tag = "firefox-based-browser" }, { opacity = glass_active_opacity .. " " .. glass_inactive_opacity })
 
+-- About is a TUI Alacritty window.
+-- Its opaque terminal background needs lower opacity to reveal
+-- the same frosted-glass backdrop as regular Velora windows.
+o.window(
+  "org.omarchy.about",
+  { opacity = "0.80 0.76" }
+)
+
 -- ── Shell surface glass ─────────────────────────────────────────────────────
 -- Window blur alone stops at the edge of Quickshell. Omarchy 4 renders its
 -- bar, menus, panels, notifications and OSD as layer-shell surfaces, so each
