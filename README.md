@@ -23,7 +23,3 @@ omarchy theme install https://github.com/shoxjaxon-atabayev/omarchy-velora-theme
 ## LockScreen
 
 ![Velora 3](screenshots/3.png)
-
-## Launcher
-
-![Velora 4](screenshots/4.png)

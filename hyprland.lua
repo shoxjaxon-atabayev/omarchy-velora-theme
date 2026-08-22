@@ -122,6 +122,12 @@ o.window({ tag = "default-opacity" }, { opacity = glass_active_opacity .. " " ..
 o.window({ tag = "chromium-based-browser" }, { opacity = glass_active_opacity .. " " .. glass_inactive_opacity })
 o.window({ tag = "firefox-based-browser" }, { opacity = glass_active_opacity .. " " .. glass_inactive_opacity })
 
+-- Alacritty needs a lower opacity to expose the Velora frosted glass.
+o.window(
+  { class = "Alacritty" },
+  { opacity = "0.80 0.76" }
+)
+
 -- About is a TUI Alacritty window.
 -- Its opaque terminal background needs lower opacity to reveal
 -- the same frosted-glass backdrop as regular Velora windows.
