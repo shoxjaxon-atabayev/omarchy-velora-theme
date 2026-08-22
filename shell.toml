@@ -1,24 +1,35 @@
-# Hand-written shell.toml for Omarchy Velora.
+# Omarchy Velora — Quickshell surfaces (Omarchy 4 / Quattro).
 #
-# This is a literal rendering of default/themed/shell.toml.tpl against this
-# theme's colors.toml, with explicit overrides only where the resolved
-# value differs from the template default. Sections/keys with no explicit
-# design intent (controls, spacing, font, polkit, image-picker, and most of
-# launcher/menu/tooltip) are left at the template's own default values --
-# nothing invented, nothing approximated beyond what was explicitly resolved.
+# A literal rendering of default/themed/shell.toml.tpl against this theme's
+# colors.toml, with explicit overrides where Velora differs from the template.
+# Sections with no Velora design intent (controls, spacing, font, image-picker)
+# are left at the template's own default values.
 #
 # NOTE: a hand-written shell.toml is copied verbatim by
-# omarchy-theme-set-templates (no {{ }} substitution runs on non-.tpl
-# files), so every value below is a literal, not a placeholder. This also
-# means this file freezes controls/spacing/font/polkit/image-picker at
-# today's template defaults -- shipping shell.<section>.toml overrides
-# instead would let those sections keep tracking future Quattro template
-# updates. Flagging this trade-off; not changing the approach without
-# confirmation since a single shell.toml was explicitly requested.
+# omarchy-theme-set-templates (no {{ }} substitution runs on non-.tpl files),
+# so every value below is a literal, not a placeholder. This also freezes
+# controls/spacing/font/image-picker at today's template defaults -- shipping
+# shell.<section>.toml overrides instead would let those sections keep tracking
+# future Quattro template updates. Flagging the trade-off; keeping the single
+# hand-written file as requested.
+#
+# ── The alpha scale ───────────────────────────────────────────────────────────
+# Every surface below is blurred by Hyprland (see hyprland.lua's layer rules),
+# so these alphas are the *tint*, not the transparency budget. Velora aims for
+# opaque frosted glass: high opacity, wallpaper shapes only softly readable
+# through a surface, never a washed-out milky panel.
+#
+#   0.85  persistent chrome     bar, lock input card
+#   0.88  transient overlays    popups, notifications
+#   0.90  content cards         menu, launcher
+#   0.92  must-read surfaces    polkit prompt
+#   0.94  dense small text      tooltips
+#   0.50  scrims                the dim wash behind a card (blurred, not tinted)
 
 [bar]
+# Alpha companions (where present) range from 0 (invisible) to 1 (opaque).
 background       = "#1a1b1e"
-background-alpha = 0.4
+background-alpha = 0.85
 text             = "#eaeaef"
 active           = "#ef5d67"
 scale-with-font  = true
@@ -65,33 +76,35 @@ scale-with-font = true
 base-size = 12
 
 [popups]
+# Bar flyouts. Blurred through omarchy-bar's blur_popups layer rule.
 background       = "#1a1b1e"
-background-alpha = 0.5
+background-alpha = 0.88
 text             = "#eaeaef"
 border           = "hyprland.active-border"
 border-alpha     = 1.0
 
 [tooltip]
+# Small and text-dense, so it sits at the readable end of the scale.
 background       = "#1a1b1e"
-background-alpha = 0.97
+background-alpha = 0.94
 text             = "#eaeaef"
 border           = "hyprland.active-border-foreground"
 border-alpha     = 1.0
 
 [notifications]
 background       = "#1a1b1e"
-background-alpha = 0.25
+background-alpha = 0.88
 text             = "#eaeaef"
 border           = "#ffffff"
 border-alpha     = 0.33
 countdown        = "#ffffff"
-# countdown has no countdown-alpha key in the Quattro schema, so mako.ini's
-# progress-color alpha (~0.33) is an unavoidable Quattro limitation: the
-# hue is preserved exactly, the translucency cannot be.
+# countdown has no countdown-alpha key in the Quattro schema, so the legacy
+# progress-color alpha (~0.33) is an unavoidable limitation: the hue is
+# preserved exactly, the translucency cannot be.
 
 [launcher]
 background                = "#1a1b1e"
-background-alpha          = 0.95
+background-alpha          = 0.90
 text                      = "#eaeaef"
 border                    = "hyprland.active-border-foreground"
 border-alpha              = 1.0
@@ -104,8 +117,10 @@ selected-border           = "hyprland.active-border-foreground"
 selected-border-alpha     = 0.25
 
 [menu]
+# Was 1.0, which is why Hyprland's blur showed up around the menu but never
+# through it. At 0.90 the card itself becomes glass.
 background                = "#1a1b1e"
-background-alpha          = 1.0
+background-alpha          = 0.90
 text                      = "#eaeaef"
 border                    = "hyprland.active-border-foreground"
 border-alpha              = 1.0
@@ -119,7 +134,7 @@ selected-border-alpha     = 0.25
 
 [polkit]
 background       = "#1a1b1e"
-background-alpha = 1.0
+background-alpha = 0.92
 text             = "#eaeaef"
 text-error       = "#ef5d67"
 border           = "hyprland.active-border"
@@ -130,8 +145,11 @@ scrim-alpha      = 0.5
 accent           = "#7ca5ff"
 
 [lock]
+# The lock screen is an ext-session-lock surface, not a layer surface, so no
+# Hyprland layer rule reaches it -- but Quickshell already gaussian-blurs the
+# wallpaper behind this card in QML, so the same glass reads correctly here.
 background       = "#1a1b1e"
-background-alpha = 0.4
+background-alpha = 0.85
 text             = "#eaeaef"
 placeholder      = "#a3a4a8"
 text-error       = "#ef5d67"

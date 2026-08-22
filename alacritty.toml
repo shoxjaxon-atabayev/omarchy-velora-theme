@@ -1,12 +1,14 @@
+# Velora keeps the terminal background fully opaque on purpose. Under Quattro,
+# window translucency has a single source: decoration:active_opacity /
+# inactive_opacity in this theme's hyprland.lua (0.92 / 0.88), with Hyprland's
+# blur behind it. Stacking a translucent terminal background on top of that
+# produced the washed-out "transparent terminal" look, not frosted glass.
+#
+# Window padding, decorations and font size are owned by Omarchy's own
+# ~/.config/alacritty/alacritty.toml, which imports this file and then
+# overrides them -- setting them here has no effect under Omarchy 4.
 [window]
-decorations = "none"
-padding = { x = 18, y = 14 }
-opacity = 0.55
-
-[font]
-size = 11.0
-
-[colors]
+opacity = 1.0
 
 [colors.primary]
 background = "#1a1b1e"

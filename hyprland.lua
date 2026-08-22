@@ -1,0 +1,190 @@
+-- Omarchy Velora — Hyprland theme layer (Omarchy 4 / Quattro).
+--
+-- Loaded as `omarchy.current.theme.hyprland` by
+-- $OMARCHY_PATH/default/hypr/omarchy.lua: after Omarchy's own
+-- default/hypr/looknfeel.lua and default/hypr/windows.lua, and before the
+-- user's ~/.config/hypr/*.lua. Everything below therefore overrides Omarchy's
+-- defaults while staying overridable by personal config.
+--
+-- Migrated from Velora's Omarchy 3 hyprland.conf. Only the visual identity is
+-- carried across — borders, spacing, rounding, shadows, blur, opacity and
+-- animation feel. Input, layout and binding behaviour stay with Omarchy.
+
+-- ── Borders ─────────────────────────────────────────────────────────────────
+-- Velora's signature: a cool white gradient on focus, near-invisible grey when
+-- unfocused. These mirror colors.toml's hyprland_active_border /
+-- hyprland_inactive_border so shell.toml's [hyprland] tokens stay in sync.
+local active_border_color = { colors = { "rgba(ffffff66)", "rgba(ffffff22)" }, angle = 90 }
+local inactive_border_color = "rgba(3a3a3a60)"
+
+local group_border_active = { colors = { "rgba(ffffff55)", "rgba(ffffff22)" }, angle = 90 }
+local group_border_inactive = "rgba(3a3a3a55)"
+local group_locked_active = { colors = { "rgba(ff990088)", "rgba(ff990022)" }, angle = 90 }
+local group_locked_inactive = "rgba(3a3a3a77)"
+
+-- ── Opaque frosted glass ────────────────────────────────────────────────────
+-- The whole point of the theme: dark tinted glass, not transparency. A strong
+-- multi-pass blur supplies the frost, the tint comes from windows and shell
+-- surfaces staying at high opacity, and contrast/brightness pulled slightly
+-- below 1.0 keeps the backdrop from washing the foreground text out.
+--
+-- Terminals deliberately keep their own background fully opaque (see
+-- alacritty.toml / kitty.conf / ghostty.conf) so that window translucency has
+-- exactly one source: the opacity values below. Stacking a translucent
+-- terminal background on top of these produced the "transparent terminal"
+-- look this theme is trying to avoid.
+local glass_active_opacity = 0.92
+local glass_inactive_opacity = 0.88
+
+-- Layer surfaces below this alpha are left unblurred, so the fully
+-- transparent padding around bar modules, notification cards and panels does
+-- not pick up a blur halo.
+local glass_ignore_alpha = 0.2
+
+hl.config({
+  general = {
+    -- Velora runs tighter than Omarchy's 5/10 default. Personal spacing
+    -- belongs in ~/.config/hypr/looknfeel.lua, which loads after this file.
+    gaps_in = 4,
+    gaps_out = 8,
+    border_size = 2,
+
+    col = {
+      active_border = active_border_color,
+      inactive_border = inactive_border_color,
+    },
+  },
+
+  group = {
+    col = {
+      border_active = group_border_active,
+      border_inactive = group_border_inactive,
+      border_locked_active = group_locked_active,
+      border_locked_inactive = group_locked_inactive,
+    },
+
+    groupbar = {
+      font_size = 10,
+      gaps_in = 3,
+      gaps_out = 3,
+    },
+  },
+
+  decoration = {
+    -- Velora is a hard-edged theme. The shell reads decoration:rounding back
+    -- out of hyprctl for its own corner radius, so this keeps Quickshell
+    -- surfaces square too.
+    rounding = 0,
+
+    -- Fallback for windows Omarchy's own rules do not tag; the tag rules
+    -- further down are what actually drive most windows.
+    active_opacity = glass_active_opacity,
+    inactive_opacity = glass_inactive_opacity,
+    fullscreen_opacity = 1.0,
+
+    shadow = {
+      enabled = true,
+      range = 25,
+      render_power = 3,
+      color = "rgba(00000055)",
+      color_inactive = "rgba(00000044)",
+      offset = { 0, 5 },
+      scale = 1.0,
+    },
+
+    blur = {
+      enabled = true,
+      size = 20,
+      passes = 3,
+      noise = 0.0117,
+      contrast = 0.9,
+      brightness = 0.9,
+      vibrancy = 0.17,
+
+      -- Frost application context menus and dropdowns as well, so an open
+      -- menu inside a window matches the window it belongs to.
+      popups = true,
+      popups_ignorealpha = glass_ignore_alpha,
+    },
+  },
+})
+
+-- ── Window opacity ──────────────────────────────────────────────────────────
+-- Omarchy tags every window `default-opacity` in default/hypr/windows.lua and
+-- then applies "0.985 0.96"; apps that must stay solid (mpv, vlc, OBS, Steam,
+-- qemu, RetroArch, PiP, webcam overlay …) drop the tag first. Re-applying the
+-- rule to the same tag keeps every one of those opt-outs intact.
+o.window({ tag = "default-opacity" }, { opacity = glass_active_opacity .. " " .. glass_inactive_opacity })
+
+-- Browsers are opted out of default-opacity upstream and pinned to
+-- "1.0 0.985". Velora wants them in the same glass system as everything else;
+-- delete these two lines to hand browsers back to the Omarchy default.
+o.window({ tag = "chromium-based-browser" }, { opacity = glass_active_opacity .. " " .. glass_inactive_opacity })
+o.window({ tag = "firefox-based-browser" }, { opacity = glass_active_opacity .. " " .. glass_inactive_opacity })
+
+-- ── Shell surface glass ─────────────────────────────────────────────────────
+-- Window blur alone stops at the edge of Quickshell. Omarchy 4 renders its
+-- bar, menus, panels, notifications and OSD as layer-shell surfaces, so each
+-- one needs its own layer rule to get the same backdrop. The alpha of those
+-- surfaces is set in shell.toml — blur here, tint there.
+--
+-- Namespaces are the ones the running shell actually registers (see
+-- `hyprctl layers` and $OMARCHY_PATH/shell/**/*.qml). Deliberately excluded:
+-- omarchy-background (the wallpaper itself), omarchy-bar-drag-ghost and
+-- omarchy-bar-move-ghost (drag affordances), omarchy-keyboard-panel-dismiss
+-- (an invisible click catcher) and omarchy-lock-preview (the lock screen
+-- already blurs its own wallpaper in QML).
+
+-- The bar, plus every flyout and tooltip it opens as an xdg popup — that
+-- covers the audio, network, bluetooth, monitor, power and clock panels when
+-- they are opened by mouse.
+hl.layer_rule({
+  name = "velora-glass-bar",
+  match = { namespace = "^omarchy-bar$" },
+  blur = true,
+  blur_popups = true,
+  ignore_alpha = glass_ignore_alpha,
+})
+
+-- Full-surface overlays: the menu (launcher, clipboard, emojis and the image
+-- selector inherit it), the keyboard-driven panel scaffolding, notifications,
+-- OSD, the polkit prompt, reminders, the Wi-Fi QR card and the speed-test
+-- gauges.
+hl.layer_rule({
+  name = "velora-glass-overlays",
+  match = {
+    namespace = "^omarchy-(menu|keyboard-panel|clipboard|emojis|image-selector|notifications|osd|polkit|reminders|network-qr|disk-speedtest|network-speedtest)$",
+  },
+  blur = true,
+  blur_popups = true,
+  ignore_alpha = glass_ignore_alpha,
+})
+
+-- ── Animations ──────────────────────────────────────────────────────────────
+-- Velora's water-and-flow curve set, ported from the Omarchy 3 config. Drop
+-- this whole block to fall back to Omarchy's default animation feel.
+hl.curve("veloraWater", { type = "bezier", points = { { 0.22, 0.9 }, { 0.36, 1.0 } } })
+hl.curve("veloraFlow", { type = "bezier", points = { { 0.25, 0.1 }, { 0.25, 1.0 } } })
+hl.curve("veloraRipple", { type = "bezier", points = { { 0.33, 0.0 }, { 0.2, 1.0 } } })
+hl.curve("veloraStream", { type = "bezier", points = { { 0.4, 0.0 }, { 0.4, 1.0 } } })
+hl.curve("veloraCascade", { type = "bezier", points = { { 0.19, 1.0 }, { 0.22, 1.0 } } })
+hl.curve("veloraStandard", { type = "bezier", points = { { 0.2, 0 }, { 0, 1 } } })
+hl.curve("veloraAccel", { type = "bezier", points = { { 0.3, 0 }, { 0.8, 0.15 } } })
+hl.curve("veloraOvershot", { type = "bezier", points = { { 0.05, 0.9 }, { 0.1, 1.05 } } })
+
+hl.animation({ leaf = "windows", enabled = true, speed = 3.0, bezier = "veloraWater" })
+hl.animation({ leaf = "windowsIn", enabled = true, speed = 2.8, bezier = "veloraCascade" })
+hl.animation({ leaf = "windowsOut", enabled = true, speed = 2.4, bezier = "veloraStream" })
+hl.animation({ leaf = "windowsMove", enabled = true, speed = 1.6, bezier = "veloraFlow" })
+hl.animation({ leaf = "fade", enabled = true, speed = 2.4, bezier = "veloraWater" })
+hl.animation({ leaf = "fadeIn", enabled = true, speed = 2.0, bezier = "veloraCascade" })
+hl.animation({ leaf = "fadeOut", enabled = true, speed = 1.8, bezier = "veloraRipple" })
+hl.animation({ leaf = "fadeDim", enabled = true, speed = 2.0, bezier = "veloraWater" })
+hl.animation({ leaf = "fadeSwitch", enabled = true, speed = 1.4, bezier = "veloraFlow" })
+hl.animation({ leaf = "layers", enabled = true, speed = 1.5, bezier = "veloraStandard" })
+hl.animation({ leaf = "layersIn", enabled = true, speed = 1.5, bezier = "veloraOvershot", style = "popin 80%" })
+hl.animation({ leaf = "layersOut", enabled = true, speed = 1.3, bezier = "veloraAccel", style = "popin 90%" })
+hl.animation({ leaf = "workspaces", enabled = true, speed = 2.8, bezier = "veloraFlow" })
+hl.animation({ leaf = "specialWorkspace", enabled = true, speed = 2.5, bezier = "veloraWater" })
+hl.animation({ leaf = "border", enabled = true, speed = 2.9, bezier = "veloraWater" })
+hl.animation({ leaf = "borderangle", enabled = true, speed = 3.5, bezier = "veloraFlow" })
