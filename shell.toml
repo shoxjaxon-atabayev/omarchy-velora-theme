@@ -110,13 +110,16 @@ countdown        = "#ffffff"
 # preserved exactly, the translucency cannot be.
 
 [launcher]
+# scrim/background split explained under [menu] just below -- launcher shares
+# the identical Menu.qml scrim+card structure (currently unused by any live
+# surface, kept in sync for when it is).
 background                = "#1a1b1e"
-background-alpha          = 0.60
+background-alpha          = 0.45
 text                      = "#eaeaef"
 border                    = "hyprland.active-border-foreground"
 border-alpha              = 1.0
 scrim                     = "#1a1b1e"
-scrim-alpha               = 0.5
+scrim-alpha               = 0.25
 selected-background       = "#eaeaef"
 selected-background-alpha = 0.08
 selected-text             = "#7ca5ff"
@@ -124,17 +127,23 @@ selected-border           = "hyprland.active-border-foreground"
 selected-border-alpha     = 0.25
 
 [menu]
-# Was 1.0, which is why Hyprland's blur showed up around the menu but never
-# through it. 0.90 still read as flat/opaque in practice; 0.60 is where the
-# blurred backdrop actually becomes visible as a soft gradient through the
-# card while text stays fully readable (confirmed live on this system).
+# The menu (and clipboard/emojis, which share these tokens) render as ONE
+# layer surface with two regions: a fullscreen `scrim` and a smaller `card`
+# on top. hyprland.lua gates blur on this surface with ignore_alpha = 0.35,
+# so the scrim (0.25, below the gate) falls through unblurred as a light dim
+# wash, while the card (0.45, above the gate) keeps the frosted blur. Both
+# numbers were tuned live: 0.60 on the card still read as flat over a
+# low-contrast backdrop (a dark editor/dark web page) because so little
+# blurred backdrop was blending in; 0.45 makes the frosting visible even
+# there. Keep background-alpha and scrim-alpha on opposite sides of
+# hyprland.lua's scrim_card_ignore_alpha if you touch either.
 background                = "#1a1b1e"
-background-alpha          = 0.60
+background-alpha          = 0.45
 text                      = "#eaeaef"
 border                    = "hyprland.active-border-foreground"
 border-alpha              = 1.0
 scrim                     = "#1a1b1e"
-scrim-alpha               = 0.5
+scrim-alpha               = 0.25
 selected-background       = "#eaeaef"
 selected-background-alpha = 0.08
 selected-text             = "#7ca5ff"
@@ -142,15 +151,17 @@ selected-border           = "hyprland.active-border-foreground"
 selected-border-alpha     = 0.25
 
 [polkit]
+# Same scrim+card split as [menu], but the card stays more opaque -- this is
+# the password prompt, so it favors readability over frost.
 background       = "#1a1b1e"
-background-alpha = 0.68
+background-alpha = 0.55
 text             = "#eaeaef"
 text-error       = "#ef5d67"
 border           = "hyprland.active-border"
 border-error     = "#ef5d67"
 border-alpha     = 1.0
 scrim            = "#1a1b1e"
-scrim-alpha      = 0.5
+scrim-alpha      = 0.25
 accent           = "#7ca5ff"
 
 [lock]
@@ -170,8 +181,11 @@ selection        = "#7ca5ff"
 selection-alpha  = 0.45
 
 [image-picker]
+# No card of its own (see the template's own comment below) -- just the
+# scrim, so the whole surface gets the same light, unblurred dim as the
+# other scrims rather than the old heavy 0.5 wash.
 scrim                   = "#1a1b1e"
-scrim-alpha             = 0.5
+scrim-alpha             = 0.25
 text                    = "#eaeaef"
 selected-border         = "#7ca5ff"
 selected-border-alpha   = 1.0

@@ -149,17 +149,26 @@ hl.layer_rule({
 -- Scrim-backed cards: menu, clipboard and emojis (all three render through
 -- Menu.qml's Color.menu tokens) plus polkit and the image selector each draw
 -- a single wlr-layer-shell surface that contains TWO regions of very
--- different alpha: a fullscreen scrim (shell.toml scrim-alpha, 0.5) behind a
--- smaller card (background-alpha, 0.60 for menu/clipboard/emojis, 0.68 for
+-- different alpha: a fullscreen scrim (shell.toml scrim-alpha, 0.25) behind
+-- a smaller card (background-alpha, 0.45 for menu/clipboard/emojis, 0.55 for
 -- polkit; the image selector has no card, only its scrim). One layer_rule
 -- can't blur one region of a surface and not another directly, but
 -- ignore_alpha *is* a per-pixel alpha gate — so setting it between those two
--- values makes the scrim (0.5, below the gate) fall through unblurred as a
--- plain dim wash, while the card (0.60+, above the gate) keeps the frosted
--- blur. This is the fix for the menu's surroundings reading as "blurred" while
--- the card itself read as flat: they were both being blurred, just to very
--- different degrees.
-local scrim_card_ignore_alpha = 0.55
+-- values makes the scrim (0.25, below the gate) fall through unblurred as a
+-- light dim wash, while the card (0.45+, above the gate) keeps the frosted
+-- blur.
+--
+-- The card alpha and this gate must move together: drop card alpha below
+-- the gate and blur silently turns off for the card too (it just shows the
+-- raw, unblurred backdrop at low opacity — easy to mistake for "blur is
+-- broken" rather than "blur is skipped here"). Card alpha was pushed down
+-- from an earlier 0.60 to 0.45 because 0.60 still read as flat over a
+-- low-contrast backdrop (a dark editor, a dark web page) — blurring
+-- already-dark content produces more dark, so the blend needs to be bigger
+-- to read as frosted rather than merely tinted. Keep some margin either
+-- side of the gate (it sits 0.10 above the scrim and 0.10 below the
+-- lowest card here) since the two are exact literals, not computed.
+local scrim_card_ignore_alpha = 0.35
 
 hl.layer_rule({
   name = "velora-glass-scrim-cards",
