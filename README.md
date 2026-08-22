@@ -1,3 +1,4 @@
+````
 # Omarchy Velora
 
 **Velora** is a dark **frosted glass theme for Omarchy 4 / Quattro**, designed
@@ -57,3 +58,58 @@ Install Velora directly with Omarchy:
 
 ```bash
 omarchy theme install https://github.com/shoxjaxon-atabayev/omarchy-velora-theme
+```
+
+After installation, select **Velora** from the Omarchy theme selector.
+
+---
+
+## Design
+
+Velora is built around a dark frosted-glass visual language.
+
+The theme combines:
+
+- Dark tinted surfaces
+- Strong background blur
+- Controlled transparency
+- Subtle borders
+- Muted blue and red accents
+- Consistent contrast across desktop surfaces
+
+The goal is to make wallpaper and background content remain visible
+through the glass while keeping applications and UI elements readable.
+
+---
+
+## Components
+
+Velora currently provides styling for:
+
+- Hyprland
+- Quickshell / Omarchy 4
+- Omarchy Bar
+- Launcher
+- Menus
+- Notifications
+- OSD
+- Polkit
+- Lock Screen
+- Alacritty
+
+---
+
+## Requirements
+
+- Omarchy 4 / Quattro
+- Hyprland
+- Quickshell
+
+---
+
+## Repository
+
+**Velora — Frosted Glass Theme for Omarchy**
+
+If you like the theme, consider giving the repository a ⭐ on GitHub.
+````
