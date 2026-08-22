@@ -1,25 +1,59 @@
 # Omarchy Velora
 
-A dark, hard-edged **opaque frosted glass** theme for Omarchy 4 (Quattro).
-Windows, the bar, menus, panels, notifications and the OSD all share one
-backdrop: a strong Hyprland blur behind high-opacity, dark-tinted surfaces.
+**Velora** is a dark **frosted glass theme for Omarchy 4 / Quattro**, designed
+around strong background blur, translucent dark surfaces, and a refined
+glassmorphism desktop aesthetic.
 
-Requires Omarchy 4 / Quattro — the theme configures Hyprland through
-`hyprland.lua` and Quickshell through `shell.toml`.
+Velora brings a consistent frosted-glass treatment to **Hyprland windows,
+Quickshell surfaces, the Omarchy bar, menus, notifications, OSD, launcher,
+lock screen, and terminal**.
+
+> Built for Omarchy 4 / Quattro.
 
 ---
 
-## Quick Install
+## Preview
 
-```bash
-omarchy theme install https://github.com/shoxjaxon-atabayev/omarchy-velora-theme
-```
+![Omarchy Velora frosted glass theme](preview.png)
+
+---
+
+## Features
+
+- Premium frosted-glass aesthetic
+- Strong wallpaper-aware background blur
+- Dark translucent window surfaces
+- Consistent glass treatment across Omarchy UI
+- Hyprland blur and window transparency
+- Quickshell / Quattro surfaces
+- Frosted menus and launcher
+- Glass-style notifications and OSD
+- Dark frosted lock screen
+- Alacritty terminal theming
+- Developer-focused dark color palette
+- High-contrast typography and subtle accents
+
+---
 
 ## Screenshots
 
-![Velora 1](screenshots/1.png)
-![Velora 2](screenshots/2.png)
+### Desktop
 
-## LockScreen
+![Omarchy Velora desktop](screenshots/1.png)
 
-![Velora 3](screenshots/3.png)
+### Frosted Glass UI
+
+![Omarchy Velora frosted glass interface](screenshots/2.png)
+
+### Lock Screen
+
+![Omarchy Velora lock screen](screenshots/3.png)
+
+---
+
+## Installation
+
+Install Velora directly with Omarchy:
+
+```bash
+omarchy theme install https://github.com/shoxjaxon-atabayev/omarchy-velora-theme
