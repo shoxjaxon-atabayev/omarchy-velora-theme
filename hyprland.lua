@@ -146,14 +146,37 @@ hl.layer_rule({
   ignore_alpha = glass_ignore_alpha,
 })
 
--- Full-surface overlays: the menu (launcher, clipboard, emojis and the image
--- selector inherit it), the keyboard-driven panel scaffolding, notifications,
--- OSD, the polkit prompt, reminders, the Wi-Fi QR card and the speed-test
--- gauges.
+-- Scrim-backed cards: menu, clipboard and emojis (all three render through
+-- Menu.qml's Color.menu tokens) plus polkit and the image selector each draw
+-- a single wlr-layer-shell surface that contains TWO regions of very
+-- different alpha: a fullscreen scrim (shell.toml scrim-alpha, 0.5) behind a
+-- smaller card (background-alpha, 0.60 for menu/clipboard/emojis, 0.68 for
+-- polkit; the image selector has no card, only its scrim). One layer_rule
+-- can't blur one region of a surface and not another directly, but
+-- ignore_alpha *is* a per-pixel alpha gate — so setting it between those two
+-- values makes the scrim (0.5, below the gate) fall through unblurred as a
+-- plain dim wash, while the card (0.60+, above the gate) keeps the frosted
+-- blur. This is the fix for the menu's surroundings reading as "blurred" while
+-- the card itself read as flat: they were both being blurred, just to very
+-- different degrees.
+local scrim_card_ignore_alpha = 0.55
+
+hl.layer_rule({
+  name = "velora-glass-scrim-cards",
+  match = { namespace = "^omarchy-(menu|clipboard|emojis|polkit|image-selector)$" },
+  blur = true,
+  blur_popups = true,
+  ignore_alpha = scrim_card_ignore_alpha,
+})
+
+-- Full-surface overlays with no scrim of their own: the keyboard-driven panel
+-- scaffolding (network/bluetooth/power/etc.), notifications, OSD, reminders,
+-- the Wi-Fi QR card and the speed-test gauges. The entire visible area here
+-- *is* the card, so it stays frosted edge to edge.
 hl.layer_rule({
   name = "velora-glass-overlays",
   match = {
-    namespace = "^omarchy-(menu|keyboard-panel|clipboard|emojis|image-selector|notifications|osd|polkit|reminders|network-qr|disk-speedtest|network-speedtest)$",
+    namespace = "^omarchy-(keyboard-panel|notifications|osd|reminders|network-qr|disk-speedtest|network-speedtest)$",
   },
   blur = true,
   blur_popups = true,
