@@ -15,21 +15,26 @@
 #
 # ── The alpha scale ───────────────────────────────────────────────────────────
 # Every surface below is blurred by Hyprland (see hyprland.lua's layer rules),
-# so these alphas are the *tint*, not the transparency budget. Velora aims for
-# opaque frosted glass: high opacity, wallpaper shapes only softly readable
-# through a surface, never a washed-out milky panel.
+# so these alphas are the *tint*, not the transparency budget. An alpha above
+# ~0.8 blends in so little of the blurred backdrop that the surface reads as
+# flat and opaque rather than glass -- measured live on this system: a card at
+# 0.90 barely shifted color against a colorful backdrop, while the same card
+# at 0.60 showed an obvious soft gradient through it while staying easily
+# readable. These values are picked from that test, not the template's own
+# high-opacity defaults.
 #
-#   0.85  persistent chrome     bar, lock input card
-#   0.88  transient overlays    popups, notifications
-#   0.90  content cards         menu, launcher
-#   0.92  must-read surfaces    polkit prompt
-#   0.94  dense small text      tooltips
+#   0.55  persistent chrome     bar
+#   0.55  transient overlays    popups (bar flyouts, network/keyboard panels, OSD)
+#   0.60  content cards         menu, launcher
+#   0.65  transient cards       notifications, lock input card
+#   0.68  must-read surfaces    polkit prompt
+#   0.85  dense small text      tooltips
 #   0.50  scrims                the dim wash behind a card (blurred, not tinted)
 
 [bar]
 # Alpha companions (where present) range from 0 (invisible) to 1 (opaque).
 background       = "#1a1b1e"
-background-alpha = 0.85
+background-alpha = 0.55
 text             = "#eaeaef"
 active           = "#ef5d67"
 scale-with-font  = true
@@ -76,9 +81,11 @@ scale-with-font = true
 base-size = 12
 
 [popups]
-# Bar flyouts. Blurred through omarchy-bar's blur_popups layer rule.
+# Bar flyouts, plus the network/bluetooth/keyboard-driven panels (they read
+# Color.popups directly). Blurred through omarchy-bar's blur_popups layer
+# rule and, for the panels, their own omarchy-keyboard-panel layer rule.
 background       = "#1a1b1e"
-background-alpha = 0.88
+background-alpha = 0.55
 text             = "#eaeaef"
 border           = "hyprland.active-border"
 border-alpha     = 1.0
@@ -86,14 +93,14 @@ border-alpha     = 1.0
 [tooltip]
 # Small and text-dense, so it sits at the readable end of the scale.
 background       = "#1a1b1e"
-background-alpha = 0.94
+background-alpha = 0.85
 text             = "#eaeaef"
 border           = "hyprland.active-border-foreground"
 border-alpha     = 1.0
 
 [notifications]
 background       = "#1a1b1e"
-background-alpha = 0.88
+background-alpha = 0.65
 text             = "#eaeaef"
 border           = "#ffffff"
 border-alpha     = 0.33
@@ -104,7 +111,7 @@ countdown        = "#ffffff"
 
 [launcher]
 background                = "#1a1b1e"
-background-alpha          = 0.90
+background-alpha          = 0.60
 text                      = "#eaeaef"
 border                    = "hyprland.active-border-foreground"
 border-alpha              = 1.0
@@ -118,9 +125,11 @@ selected-border-alpha     = 0.25
 
 [menu]
 # Was 1.0, which is why Hyprland's blur showed up around the menu but never
-# through it. At 0.90 the card itself becomes glass.
+# through it. 0.90 still read as flat/opaque in practice; 0.60 is where the
+# blurred backdrop actually becomes visible as a soft gradient through the
+# card while text stays fully readable (confirmed live on this system).
 background                = "#1a1b1e"
-background-alpha          = 0.90
+background-alpha          = 0.60
 text                      = "#eaeaef"
 border                    = "hyprland.active-border-foreground"
 border-alpha              = 1.0
@@ -134,7 +143,7 @@ selected-border-alpha     = 0.25
 
 [polkit]
 background       = "#1a1b1e"
-background-alpha = 0.92
+background-alpha = 0.68
 text             = "#eaeaef"
 text-error       = "#ef5d67"
 border           = "hyprland.active-border"
@@ -149,7 +158,7 @@ accent           = "#7ca5ff"
 # Hyprland layer rule reaches it -- but Quickshell already gaussian-blurs the
 # wallpaper behind this card in QML, so the same glass reads correctly here.
 background       = "#1a1b1e"
-background-alpha = 0.85
+background-alpha = 0.65
 text             = "#eaeaef"
 placeholder      = "#a3a4a8"
 text-error       = "#ef5d67"
