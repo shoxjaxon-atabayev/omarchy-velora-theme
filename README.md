@@ -37,9 +37,9 @@ lock screen, and terminal**.
 
 ## Screenshots
 
-### Desktop
+### Developer Workspace
 
-![Omarchy Velora desktop](screenshots/1.png)
+![Omarchy Velora developer workspace](screenshots/1.png)
 
 ### Frosted Glass UI
 
