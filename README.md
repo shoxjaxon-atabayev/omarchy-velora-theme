@@ -1,4 +1,3 @@
-````
 # Omarchy Velora
 
 **Velora** is a dark **frosted glass theme for Omarchy 4 / Quattro**, designed
@@ -141,4 +140,3 @@ Velora currently provides styling for:
 **Velora — Frosted Glass Theme for Omarchy**
 
 If you like the theme, consider giving the repository a ⭐ on GitHub.
-````
