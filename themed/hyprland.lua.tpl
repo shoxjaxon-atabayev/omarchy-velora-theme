@@ -9,6 +9,18 @@
 -- Migrated from Velora's Omarchy 3 hyprland.conf. Only the visual identity is
 -- carried across — borders, spacing, rounding, shadows, blur, opacity and
 -- animation feel. Input, layout and binding behaviour stay with Omarchy.
+--
+-- Shipped as themed/hyprland.lua.tpl, not a plain hyprland.lua: Omarchy
+-- refuses to stage any .lua file from a theme installed via `omarchy theme
+-- install <git-url>` (is_denied_installed_file in omarchy-theme-set — any
+-- git-cloned theme's .lua is skipped outright, since arbitrary Lua from a
+-- random repo would otherwise run at Hyprland login). omarchy-theme-set-templates
+-- only renders .tpl files from $OMARCHY_PATH/default/themed and
+-- ~/.config/omarchy/themed -- never from the theme's own staged directory --
+-- so this file has no {{ }} placeholders to resolve; it is a literal copy,
+-- picked up only once copied to ~/.config/omarchy/themed/hyprland.lua.tpl,
+-- where it overrides Omarchy's own default hyprland.lua.tpl for every theme
+-- (that override is global, not scoped to Velora specifically).
 
 -- ── Borders ─────────────────────────────────────────────────────────────────
 -- Velora's signature: a cool white gradient on focus, near-invisible grey when
@@ -255,3 +267,28 @@ hl.animation({ leaf = "workspaces", enabled = true, speed = 2.8, bezier = "velor
 hl.animation({ leaf = "specialWorkspace", enabled = true, speed = 2.5, bezier = "veloraWater" })
 hl.animation({ leaf = "border", enabled = true, speed = 2.9, bezier = "veloraWater" })
 hl.animation({ leaf = "borderangle", enabled = true, speed = 3.5, bezier = "veloraFlow" })
+
+-- ── Wallpaper-change repaint watcher ────────────────────────────────────────
+-- omarchy-theme-bg-set only replaces the ~/.local/state/omarchy/current/
+-- background symlink and pings the shell over IPC to swap the image -- it
+-- never asks Hyprland to repaint. The velora-glass-bar layer_rule above
+-- blurs whatever is actually behind the bar (there's no wallpaper-derived
+-- color extraction anywhere in this theme), and Hyprland only recomputes
+-- that blur on damage/repaint. Since a plain background swap produces no
+-- such event, the bar keeps showing the old wallpaper through its blur
+-- until something unrelated (focusing/opening a window) forces a repaint.
+-- Watching for the symlink swap and asking for a reload closes that gap.
+--
+-- ln -nsf (what omarchy-theme-bg-set uses) writes a temp file then renames
+-- it onto "background" -- confirmed live with inotifywait, only a MOVED_TO
+-- for that exact name fires, so nothing else in that directory triggers a
+-- spurious reload. Requires the optional `inotify-tools` package; the
+-- command -v guard makes this a silent no-op if it isn't installed --
+-- Velora doesn't require it.
+hl.on("hyprland.start", function()
+  hl.exec_cmd(
+    "command -v inotifywait >/dev/null 2>&1 && "
+      .. "inotifywait -m -q -e moved_to --format '%f' -- \"$HOME/.local/state/omarchy/current\" "
+      .. "| while read -r f; do [ \"$f\" = background ] && hyprctl reload; done"
+  )
+end)
